@@ -143,13 +143,15 @@ export const surpriseMe = createServerFn({ method: "POST" })
         `Surprise the user with ${theme}. Pick something delightful and specific — not generic. Include one fun fact.`,
       );
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { persistGeneratedRecipe } = await import("@/lib/shared-persistence.server");
       const row = toDbRecipe(recipe, context.userId);
       const { data, error } = await supabaseAdmin
         .from("recipes")
         .insert(row)
-        .select("slug")
+        .select("id,slug")
         .single();
       if (error) throw new Error(error.message);
+      await persistGeneratedRecipe({ ...recipe, id: data.id });
       void trackEvent({ user_id: context.userId, kind: "ai", name: "ai.surprise_me", latency_ms: Date.now() - t0, success: true, metadata: { theme, name: recipe.name } });
       return { slug: data.slug };
     } catch (e) {
@@ -192,13 +194,15 @@ export const generateRecipe = createServerFn({ method: "POST" })
       const recipe = await callModel(
         `Create a real, authentic recipe for: "${data.query}". If the dish exists in any culture, use the traditional version. Be specific and accurate.`,
       );
+      const { persistGeneratedRecipe } = await import("@/lib/shared-persistence.server");
       const row = toDbRecipe(recipe, context.userId);
       const { data: inserted, error } = await supabaseAdmin
         .from("recipes")
         .insert(row)
-        .select("slug")
+        .select("id,slug")
         .single();
       if (error) throw new Error(error.message);
+      await persistGeneratedRecipe({ ...recipe, id: inserted.id });
       await auditLog({
         actor_id: context.userId,
         action: "recipe.generated",
