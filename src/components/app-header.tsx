@@ -40,7 +40,7 @@ export function AppHeader() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="sm" className="rounded-full">
-                {user.email?.split("@")[0] ?? "Account"}
+                {user.user_metadata?.display_name ?? user.email?.split("@")[0] ?? "Account"}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
