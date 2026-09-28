@@ -2,7 +2,7 @@ import { cn } from "@/lib/utils";
 
 export function MealMateLogo({ className, imageClassName }: { className?: string; imageClassName?: string }) {
   return (
-    <span className={cn("inline-flex items-center", className)}>
+    <span className={cn("inline-flex items-center overflow-hidden rounded-xl bg-black", className)}>
       <img
         src="/mealmate-logo.png"
         alt="MealMate — Eat better, live better"
