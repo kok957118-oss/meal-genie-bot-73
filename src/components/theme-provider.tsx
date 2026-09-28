@@ -33,8 +33,8 @@ function applyTheme(resolved: ResolvedTheme) {
 }
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [mode, setModeState] = useState<ThemeMode>("system");
-  const [resolved, setResolved] = useState<ResolvedTheme>("light");
+  const [mode, setModeState] = useState<ThemeMode>("dark");
+  const [resolved, setResolved] = useState<ResolvedTheme>("dark");
 
   // Load stored preference on mount.
   useEffect(() => {
