@@ -40,6 +40,23 @@ function extractErrorMessage(err: unknown, fallback: string): string {
   return fallback;
 }
 
+function authErrorMessage(err: unknown): string {
+  const message = extractErrorMessage(err, "Authentication failed").toLowerCase();
+  if (message.includes("invalid login credentials") || message.includes("invalid email or password")) {
+    return "Invalid email or password.";
+  }
+  if (message.includes("email not confirmed")) {
+    return "Please verify your email before signing in.";
+  }
+  if (message.includes("invalid api key")) {
+    return "Authentication is temporarily unavailable. Please try again shortly.";
+  }
+  if (message.includes("rate limit") || message.includes("too many requests")) {
+    return "Too many attempts. Please wait a moment and try again.";
+  }
+  return "Authentication failed. Please try again.";
+}
+
 function AuthPage() {
   const navigate = useNavigate();
   const { user, loading } = useSession();
@@ -89,14 +106,7 @@ function AuthPage() {
       navigate({ to: "/", replace: true });
     } catch (err) {
       console.error("[Auth] submit error:", err);
-      const message = extractErrorMessage(err, "Authentication failed").toLowerCase();
-      toast.error(
-        message.includes("invalid login credentials") || message.includes("invalid email or password")
-          ? "Invalid email or password."
-          : message.includes("email not confirmed")
-            ? "Please verify your email before signing in."
-            : extractErrorMessage(err, "Authentication failed"),
-      );
+      toast.error(authErrorMessage(err));
     } finally {
       setBusy(false);
     }
