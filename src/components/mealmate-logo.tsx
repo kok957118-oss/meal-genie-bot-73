@@ -2,17 +2,16 @@ import { cn } from "@/lib/utils";
 
 export function MealMateLogo({ className, imageClassName }: { className?: string; imageClassName?: string }) {
   return (
-    <span className={cn("inline-flex items-center gap-2", className)}>
+    <span className={cn("inline-flex items-center", className)}>
       <img
-        src="/favicon.png"
-        alt="MealMate"
-        width={40}
-        height={40}
+        src="/mealmate-logo.png"
+        alt="MealMate — Eat better, live better"
+        width={240}
+        height={240}
         decoding="async"
         fetchPriority="high"
-        className={cn("size-10 shrink-0 overflow-hidden rounded-full object-contain grayscale brightness-0 dark:invert", imageClassName)}
+        className={cn("h-auto object-contain", imageClassName ?? "w-40")}
       />
-      <span className="font-display text-2xl leading-none">MealMate</span>
     </span>
   );
 }
