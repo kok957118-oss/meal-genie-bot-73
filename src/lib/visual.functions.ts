@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { lovableFetch } from "@/lib/lovable-ai.server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { enforceRateLimit, trackEvent } from "@/lib/security.server";
@@ -58,9 +59,8 @@ const ScriptSchema = z.object({
 
 async function b64Image(key: string, prompt: string): Promise<string | null> {
   try {
-    const res = await fetch(`${GATEWAY}/images/generations`, {
+    const res = await lovableFetch(`/images/generations`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
       body: JSON.stringify({
         model: "openai/gpt-image-2",
         prompt,
@@ -80,9 +80,8 @@ async function b64Image(key: string, prompt: string): Promise<string | null> {
 
 async function b64Speech(key: string, text: string): Promise<string | null> {
   try {
-    const res = await fetch(`${GATEWAY}/audio/speech`, {
+    const res = await lovableFetch(`/audio/speech`, {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
       body: JSON.stringify({
         model: "openai/gpt-4o-mini-tts",
         input: text,
@@ -127,14 +126,11 @@ export const generateVisualExplanation = createServerFn({ method: "POST" })
 
     await enforceRateLimit("ai_visual", context.userId, 15);
 
-    const key = process.env["LOVABLE_API_KEY"];
-    if (!key) throw new Error("Missing LOVABLE_API_KEY");
 
     const t0 = Date.now();
     try {
-      const res = await fetch(`${GATEWAY}/chat/completions`, {
+      const res = await lovableFetch(`/chat/completions`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
           messages: [

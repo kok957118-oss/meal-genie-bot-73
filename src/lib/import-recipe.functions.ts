@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { lovableFetch } from "@/lib/lovable-ai.server";
 import { z } from "zod";
 import { slugify } from "@/lib/slug";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
@@ -98,15 +99,12 @@ export const importRecipeFromUrl = createServerFn({ method: "POST" })
     z.object({ url: z.string().url().max(1000) }).parse(v),
   )
   .handler(async ({ data, context }) => {
-    const key = process.env["LOVABLE_API_KEY"];
-    if (!key) throw new Error("Missing LOVABLE_API_KEY");
 
     const meta = await scrapeMeta(data.url);
     const userMsg = `URL: ${data.url}\n\nScraped page metadata (may be empty or blocked by the platform):\n${meta || "(none)"}\n\nInfer the recipe if this is cooking content, otherwise return {"not_recipe": true}.`;
 
-    const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const res = await lovableFetch("/chat/completions", {
       method: "POST",
-      headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
