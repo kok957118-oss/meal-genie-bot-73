@@ -58,9 +58,14 @@ export function AppHeader() {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Button size="sm" className="rounded-full" onClick={() => navigate({ to: "/auth" })}>
-            Sign in
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" className="rounded-full" onClick={() => navigate({ to: "/auth" })}>
+              Sign in
+            </Button>
+            <Button size="sm" className="rounded-full" onClick={() => navigate({ to: "/auth" })}>
+              Sign up
+            </Button>
+          </div>
         )}
       </div>
     </header>

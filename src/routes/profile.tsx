@@ -101,8 +101,14 @@ function detectCurrency(): string {
 }
 
 function SettingsPage() {
-  const { user } = useSession();
+  const { user, loading } = useSession();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate({ to: "/auth", replace: true });
+    }
+  }, [loading, user, navigate]);
   const queryClient = useQueryClient();
 
   const { resolved, setMode } = useTheme();
@@ -299,6 +305,10 @@ function SettingsPage() {
     { label: "Terms of Service", description: "The rules for using MealMate", icon: FileText, to: "/legal/terms" },
     { label: "Privacy Policy", description: "How we handle your data", icon: Shield, to: "/legal/privacy" },
   ];
+
+  if (loading || !user) {
+    return null;
+  }
 
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-4 pb-24 pt-8">
