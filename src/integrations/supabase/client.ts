@@ -36,6 +36,10 @@ function createSupabaseClient() {
     import.meta.env['NEXT_PUBLIC_SUPABASE_URL'] ||
     process.env['NEXT_PUBLIC_SUPABASE_URL'];
   const SUPABASE_PUBLISHABLE_KEY =
+    import.meta.env['VITE_SUPABASE_PUBLISHABLE_KEY'] ||
+    process.env['VITE_SUPABASE_PUBLISHABLE_KEY'] ||
+    import.meta.env['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'] ||
+    process.env['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'] ||
     import.meta.env['VITE_SUPABASE_ANON_KEY'] ||
     process.env['VITE_SUPABASE_ANON_KEY'] ||
     import.meta.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'] ||
@@ -44,7 +48,7 @@ function createSupabaseClient() {
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     const missing = [
       ...(!SUPABASE_URL ? ['VITE_SUPABASE_URL'] : []),
-      ...(!SUPABASE_PUBLISHABLE_KEY ? ['NEXT_PUBLIC_SUPABASE_ANON_KEY'] : []),
+      ...(!SUPABASE_PUBLISHABLE_KEY ? ['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'] : []),
     ];
     const message = `Missing Supabase environment variable(s): ${missing.join(', ')}. Configure the production Vercel environment.`;
     console.error(`[Supabase] ${message}`);
