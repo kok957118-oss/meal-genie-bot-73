@@ -35,15 +35,20 @@ function createSupabaseClient() {
     process.env['VITE_SUPABASE_URL'] ||
     import.meta.env['NEXT_PUBLIC_SUPABASE_URL'] ||
     process.env['NEXT_PUBLIC_SUPABASE_URL'];
+  // Prefer the project anon key for browser auth. It is the legacy JWT key
+  // supported by every Supabase client version and is scoped to this project.
+  // The publishable key remains a fallback for projects that do not expose anon.
   const SUPABASE_PUBLISHABLE_KEY =
+    import.meta.env['VITE_SUPABASE_ANON_KEY'] ||
+    process.env['VITE_SUPABASE_ANON_KEY'] ||
+    import.meta.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'] ||
+    process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'] ||
     import.meta.env['VITE_SUPABASE_PUBLISHABLE_KEY'] ||
     process.env['VITE_SUPABASE_PUBLISHABLE_KEY'] ||
     import.meta.env['VITE_SUPABASE_PUBLISHABLE_KEY_2'] ||
     process.env['VITE_SUPABASE_PUBLISHABLE_KEY_2'] ||
     import.meta.env['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'] ||
-    process.env['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'] ||
-    import.meta.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'] ||
-    process.env['NEXT_PUBLIC_SUPABASE_ANON_KEY'];
+    process.env['NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY'];
 
   if (!SUPABASE_URL || !SUPABASE_PUBLISHABLE_KEY) {
     const missing = [
