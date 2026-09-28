@@ -25,6 +25,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { useTheme } from "@/components/theme-provider";
 import { GamificationCard } from "@/components/gamification-card";
 import {
@@ -99,8 +101,14 @@ function detectCurrency(): string {
 }
 
 function SettingsPage() {
-  const { user } = useSession();
+  const { user, loading } = useSession();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      navigate({ to: "/auth", replace: true });
+    }
+  }, [loading, user, navigate]);
   const queryClient = useQueryClient();
 
   const { resolved, setMode } = useTheme();
@@ -122,21 +130,44 @@ function SettingsPage() {
     queryFn: async () => {
       const { data } = await supabase
         .from("profiles")
-        .select("currency, locale")
+        .select("display_name, currency, locale")
         .eq("id", user!.id)
         .maybeSingle();
-      return (data as { currency?: string; locale?: string } | null) ?? null;
+      return (data as { display_name?: string; currency?: string; locale?: string } | null) ?? null;
     },
   });
 
   const [currency, setCurrency] = useState<string>("USD");
   const [lang, setLang] = useState<string>("en");
+  const [displayName, setDisplayName] = useState("");
+  const [savingName, setSavingName] = useState(false);
   useEffect(() => {
     const storedCur = window.localStorage.getItem("mealmate-currency");
     const storedLang = window.localStorage.getItem("mealmate-lang");
     setCurrency(prefs?.currency ?? storedCur ?? detectCurrency());
     setLang(prefs?.locale ?? storedLang ?? "en");
+    setDisplayName(prefs?.display_name ?? user?.user_metadata?.display_name ?? user?.email?.split("@")[0] ?? "");
   }, [prefs]);
+
+  async function saveDisplayName() {
+    const next = displayName.trim();
+    if (!user || !next || next.length > 80) {
+      toast.error("Enter a name between 1 and 80 characters.");
+      return;
+    }
+    setSavingName(true);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ display_name: next } as never)
+      .eq("id", user.id);
+    setSavingName(false);
+    if (error) {
+      toast.error("Couldn't save your name. Please try again.");
+      return;
+    }
+    queryClient.invalidateQueries({ queryKey: ["profile-prefs", user.id] });
+    toast.success("Profile updated");
+  }
 
   async function saveCurrency(next: string) {
     setCurrency(next);
@@ -275,6 +306,10 @@ function SettingsPage() {
     { label: "Privacy Policy", description: "How we handle your data", icon: Shield, to: "/legal/privacy" },
   ];
 
+  if (loading || !user) {
+    return null;
+  }
+
   return (
     <main className="mx-auto w-full max-w-2xl flex-1 px-4 pb-24 pt-8">
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary/15 via-primary/5 to-background p-5">
@@ -295,6 +330,26 @@ function SettingsPage() {
       <GamificationCard />
 
       <Section title="Profile" items={profileItems} />
+
+      {user && (
+        <section className="mt-6 rounded-2xl border border-border bg-card p-4 shadow-sm">
+          <Label htmlFor="display-name" className="text-sm font-medium">Display name</Label>
+          <div className="mt-2 flex gap-2">
+            <Input
+              id="display-name"
+              value={displayName}
+              maxLength={80}
+              onChange={(event) => setDisplayName(event.target.value)}
+              placeholder="Your name"
+              autoComplete="name"
+            />
+            <Button type="button" onClick={saveDisplayName} disabled={savingName || !displayName.trim()}>
+              {savingName ? "Saving" : "Save"}
+            </Button>
+          </div>
+        </section>
+      )}
+
       <Section title="Account" items={accountItems} />
 
       <Section

@@ -40,7 +40,7 @@ export function AppHeader() {
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="secondary" size="sm" className="rounded-full">
-                {user.email?.split("@")[0] ?? "Account"}
+                {user.user_metadata?.display_name ?? user.email?.split("@")[0] ?? "Account"}
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
@@ -58,9 +58,14 @@ export function AppHeader() {
             </DropdownMenuContent>
           </DropdownMenu>
         ) : (
-          <Button size="sm" className="rounded-full" onClick={() => navigate({ to: "/auth" })}>
-            Sign in
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button variant="ghost" size="sm" className="rounded-full" onClick={() => navigate({ to: "/auth" })}>
+              Sign in
+            </Button>
+            <Button size="sm" className="rounded-full" onClick={() => navigate({ to: "/auth" })}>
+              Sign up
+            </Button>
+          </div>
         )}
       </div>
     </header>
