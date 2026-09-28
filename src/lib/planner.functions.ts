@@ -370,3 +370,46 @@ export const suggestSubstitutions = createServerFn({ method: "POST" })
       throw err;
     }
   });
+
+const MealPlanEntryInput = z.object({
+  plan_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+  meal_type: z.string().trim().min(1).max(40),
+  recipe_id: z.string().uuid().nullable().optional(),
+  custom_name: z.string().trim().max(200).nullable().optional(),
+});
+
+// Meal plan writes run through the Lovable backend with the caller's Supabase JWT,
+// so Row Level Security still scopes every row to the signed-in user.
+export const addMealPlanEntry = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v: unknown) => MealPlanEntryInput.parse(v))
+  .handler(async ({ data, context }) => {
+    if (!data.recipe_id && !data.custom_name) throw new Error("Pick a recipe or meal name");
+    const { data: row, error } = await context.supabase
+      .from("meal_plans")
+      .insert({
+        user_id: context.userId,
+        plan_date: data.plan_date,
+        meal_type: data.meal_type,
+        recipe_id: data.recipe_id ?? null,
+        custom_name: data.custom_name ?? null,
+      })
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    void trackEvent({ user_id: context.userId, kind: "planner", name: "planner.add_entry", success: true });
+    return { id: row.id };
+  });
+
+export const removeMealPlanEntry = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((v: unknown) => z.object({ id: z.string().uuid() }).parse(v))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("meal_plans")
+      .delete()
+      .eq("id", data.id)
+      .eq("user_id", context.userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });

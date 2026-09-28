@@ -60,20 +60,21 @@ function extractJson(text: string): unknown {
   return JSON.parse(cleaned.slice(start, end + 1));
 }
 
-async function callModel(prompt: string): Promise<GeneratedRecipe> {
-  const key = process.env["GROQ_API_KEY"];
-  if (!key) throw new Error("AI_NOT_CONFIGURED");
+const LOVABLE_AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
+const LOVABLE_AI_MODEL = "google/gemini-2.5-flash";
 
-  const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+async function callModel(prompt: string): Promise<GeneratedRecipe> {
+  const key = process.env["LOVABLE_API_KEY"];
+  if (!key) throw new Error("Missing LOVABLE_API_KEY");
+
+  const res = await fetch(LOVABLE_AI_URL, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
       Authorization: `Bearer ${key}`,
     },
     body: JSON.stringify({
-      model: "llama-3.3-70b-versatile",
-      temperature: 0.7,
-      response_format: { type: "json_object" },
+      model: LOVABLE_AI_MODEL,
       messages: [
         { role: "system", content: SYSTEM },
         { role: "user", content: prompt },
@@ -82,7 +83,7 @@ async function callModel(prompt: string): Promise<GeneratedRecipe> {
   });
 
   if (!res.ok) {
-    console.error(`[MealMate AI] Groq request failed with status ${res.status}`);
+    console.error(`[MealMate AI] Lovable AI request failed with status ${res.status}`);
     throw new Error("AI_REQUEST_FAILED");
   }
 
@@ -222,15 +223,15 @@ export const scanKitchen = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await enforceRateLimit("ai_vision", context.userId, 10);
-    const key = process.env["GROQ_API_KEY"];
-    if (!key) throw new Error("AI_NOT_CONFIGURED");
+    const key = process.env["LOVABLE_API_KEY"];
+    if (!key) throw new Error("Missing LOVABLE_API_KEY");
     const t0 = Date.now();
     try {
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      const res = await fetch(LOVABLE_AI_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
         body: JSON.stringify({
-          model: "meta-llama/llama-4-scout-17b-16e-instruct",
+          model: LOVABLE_AI_MODEL,
           messages: [
             {
               role: "user",
@@ -289,15 +290,15 @@ export const scanDish = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await enforceRateLimit("ai_vision", context.userId, 10);
-    const key = process.env["GROQ_API_KEY"];
-    if (!key) throw new Error("AI_NOT_CONFIGURED");
+    const key = process.env["LOVABLE_API_KEY"];
+    if (!key) throw new Error("Missing LOVABLE_API_KEY");
     const t0 = Date.now();
     try {
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      const res = await fetch(LOVABLE_AI_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
         body: JSON.stringify({
-          model: "meta-llama/llama-4-scout-17b-16e-instruct",
+          model: LOVABLE_AI_MODEL,
           messages: [
             {
               role: "user",
@@ -333,15 +334,15 @@ export const askFoodQuestion = createServerFn({ method: "POST" })
   .inputValidator((v: unknown) => z.object({ question: z.string().trim().min(1).max(500) }).parse(v))
   .handler(async ({ data, context }) => {
     await enforceRateLimit("ai_chat", context.userId, 20);
-    const key = process.env["GROQ_API_KEY"];
-    if (!key) throw new Error("AI_NOT_CONFIGURED");
+    const key = process.env["LOVABLE_API_KEY"];
+    if (!key) throw new Error("Missing LOVABLE_API_KEY");
     const t0 = Date.now();
     try {
-      const res = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+      const res = await fetch(LOVABLE_AI_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
         body: JSON.stringify({
-          model: "llama-3.3-70b-versatile",
+          model: LOVABLE_AI_MODEL,
           messages: [
             {
               role: "system",

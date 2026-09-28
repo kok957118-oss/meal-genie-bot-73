@@ -22,6 +22,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { myFavoritesQuery } from "@/lib/queries";
+import { addMealPlanEntry } from "@/lib/planner.functions";
 import {
   importRecipeFromUrl,
   updateRecipeBasics,
@@ -615,13 +616,9 @@ function PlanDialog({
   async function save() {
     setSaving(true);
     try {
-      const { error } = await supabase.from("meal_plans").insert({
-        user_id: userId,
-        recipe_id: item.id,
-        plan_date: date,
-        meal_type: meal,
+      await addMealPlanEntry({
+        data: { recipe_id: item.id, plan_date: date, meal_type: meal },
       });
-      if (error) throw error;
       toast.success("Added to planner");
       await onDone();
     } catch (err) {

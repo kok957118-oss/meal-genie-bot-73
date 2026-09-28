@@ -7,7 +7,13 @@ import { myPlannerQuery, myFavoritesQuery } from "@/lib/queries";
 import { supabase } from "@/integrations/supabase/client";
 import { useSession } from "@/hooks/use-session";
 import { Button } from "@/components/ui/button";
-import { generatePersonalizedPlan, buildGroceryFromPlan, aiPlanAndShop } from "@/lib/planner.functions";
+import {
+  generatePersonalizedPlan,
+  buildGroceryFromPlan,
+  aiPlanAndShop,
+  addMealPlanEntry,
+  removeMealPlanEntry,
+} from "@/lib/planner.functions";
 import { useFeatureFlag } from "@/hooks/use-feature-flag";
 import {
   Select,
@@ -136,14 +142,14 @@ function PlannerPage() {
     const fav = favorites?.find((f) => f.recipe_id === recipeId);
     setSaving(true);
     try {
-      const { error } = await supabase.from("meal_plans").insert({
-        user_id: user.id,
-        plan_date: day,
-        meal_type: mealType,
-        recipe_id: recipeId,
-        custom_name: fav?.recipes?.name ?? null,
+      await addMealPlanEntry({
+        data: {
+          plan_date: day,
+          meal_type: mealType,
+          recipe_id: recipeId,
+          custom_name: fav?.recipes?.name ?? null,
+        },
       });
-      if (error) throw error;
       setAddingDay(null);
       setRecipeId("");
       refresh();
@@ -155,7 +161,11 @@ function PlannerPage() {
   }
 
   async function removeMeal(id: string) {
-    await supabase.from("meal_plans").delete().eq("id", id);
+    try {
+      await removeMealPlanEntry({ data: { id } });
+    } catch {
+      toast.error("Couldn't remove meal");
+    }
     refresh();
   }
 

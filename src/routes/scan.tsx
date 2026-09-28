@@ -4,6 +4,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Camera, CalendarDays, Flame, Loader2, Plus, Sparkles, Utensils } from "lucide-react";
 import { scanKitchen, scanDish, type ScannedDish } from "@/lib/ai.functions";
+import { addMealPlanEntry } from "@/lib/planner.functions";
 import { useSession } from "@/hooks/use-session";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -139,13 +140,9 @@ function ScanPage() {
     if (!dish || !user || saving) return;
     setSaving(true);
     try {
-      const { error: planErr } = await supabase.from("meal_plans").insert({
-        user_id: user.id,
-        plan_date: planDate,
-        meal_type: mealType,
-        custom_name: dish.name,
+      await addMealPlanEntry({
+        data: { plan_date: planDate, meal_type: mealType, custom_name: dish.name },
       });
-      if (planErr) throw planErr;
       const { error: logErr } = await supabase.from("nutrition_logs").insert({
         user_id: user.id,
         name: dish.name,
