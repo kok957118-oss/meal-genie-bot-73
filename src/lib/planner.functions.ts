@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { lovableFetch } from "@/lib/lovable-ai.server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { enforceRateLimit, trackEvent } from "@/lib/security.server";
@@ -32,8 +33,6 @@ export const generatePersonalizedPlan = createServerFn({ method: "POST" })
       .eq("id", context.userId)
       .maybeSingle();
 
-    const key = process.env["LOVABLE_API_KEY"];
-    if (!key) throw new Error("Missing LOVABLE_API_KEY");
 
     const start = data.startDate ? new Date(data.startDate) : new Date();
     const dates: string[] = [];
@@ -58,9 +57,8 @@ Days: 1..${data.days}. One entry per meal per day.`;
 
     const t0 = Date.now();
     try {
-      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      const res = await lovableFetch("/chat/completions", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
           messages: [
@@ -168,8 +166,6 @@ export const aiPlanAndShop = createServerFn({ method: "POST" })
       .eq("id", userId)
       .maybeSingle();
 
-    const key = process.env["LOVABLE_API_KEY"];
-    if (!key) throw new Error("Missing LOVABLE_API_KEY");
 
     const start = data.startDate ? new Date(data.startDate) : new Date();
     const dates: string[] = [];
@@ -201,9 +197,8 @@ Days: 1..${data.days}. One entry per meal per day.`;
     const t0 = Date.now();
     let suggestions: ShopMeal[] = [];
     try {
-      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      const res = await lovableFetch("/chat/completions", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
           messages: [
@@ -336,13 +331,10 @@ export const suggestSubstitutions = createServerFn({ method: "POST" })
   )
   .handler(async ({ data, context }) => {
     await enforceRateLimit("ai_substitute", context.userId, 20);
-    const key = process.env["LOVABLE_API_KEY"];
-    if (!key) throw new Error("Missing LOVABLE_API_KEY");
     const t0 = Date.now();
     try {
-      const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      const res = await lovableFetch("/chat/completions", {
         method: "POST",
-        headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
         body: JSON.stringify({
           model: "google/gemini-2.5-flash",
           messages: [

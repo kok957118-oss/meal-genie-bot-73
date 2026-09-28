@@ -1,4 +1,5 @@
 import { createServerFn } from "@tanstack/react-start";
+import { lovableFetch } from "@/lib/lovable-ai.server";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { enforceRateLimit, trackEvent } from "@/lib/security.server";
@@ -57,11 +58,8 @@ RULES:
 - Plain markdown only. No headings above H3.`;
 
 async function callChat(messages: { role: string; content: string }[]): Promise<string> {
-  const key = process.env["LOVABLE_API_KEY"];
-  if (!key) throw new Error("Missing LOVABLE_API_KEY");
-  const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+  const res = await lovableFetch("/chat/completions", {
     method: "POST",
-    headers: { "Content-Type": "application/json", Authorization: `Bearer ${key}` },
     body: JSON.stringify({
       model: "google/gemini-2.5-flash",
       messages,
