@@ -157,7 +157,7 @@ function Index() {
   }
 
   return (
-    <main className="flex-1">
+    <main className="flex-1 bg-[#FFF8F1]">
       {/* Greeting header */}
       <div className="flex items-center justify-between px-4 pt-6">
         <div>
@@ -189,7 +189,7 @@ function Index() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search recipes, ingredients, cuisines…"
-            className="h-14 rounded-full border-none bg-card pl-11 pr-14 text-base shadow-sm"
+            className="h-14 rounded-2xl border border-[#E8D8CE] bg-white pl-11 pr-14 text-base shadow-[0_8px_24px_rgba(53,30,53,0.06)] placeholder:text-[#786B68]"
           />
           <button
             type="submit"

@@ -16,6 +16,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { AppHeader } from "@/components/app-header";
 import { BottomNav } from "@/components/bottom-nav";
 import { MarketplaceBottomNav } from "@/components/restaurant/marketplace-bottom-nav";
+import { OfflinePopup } from "@/components/offline-popup";
 
 import { AuthGate } from "@/components/auth-gate";
 import { Toaster } from "@/components/ui/sonner";
@@ -213,6 +214,7 @@ function RootComponent() {
               </div>
               {isMarketplace ? <MarketplaceBottomNav /> : <BottomNav />}
             </div>
+            <OfflinePopup />
             <Toaster position="top-center" />
           </UpgradeModalProvider>
         </LocaleProvider>

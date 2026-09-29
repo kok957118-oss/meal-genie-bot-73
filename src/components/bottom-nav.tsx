@@ -52,7 +52,7 @@ export function BottomNav() {
     <nav
       id="app-nav"
       aria-label="Primary"
-      className="fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/95 pb-[env(safe-area-inset-bottom)] backdrop-blur supports-[backdrop-filter]:bg-background/80"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E8D8CE] bg-[#FFF8F1]/95 pb-[env(safe-area-inset-bottom)] shadow-[0_-8px_24px_rgba(53,30,53,0.06)] backdrop-blur supports-[backdrop-filter]:bg-[#FFF8F1]/90"
     >
       <div className="mx-auto grid max-w-3xl grid-cols-5 items-end px-2">
         {LEFT_TABS.map((t) => (
@@ -61,7 +61,7 @@ export function BottomNav() {
         <Link
           to="/chat"
           aria-label="Ask the AI chef"
-          className="mx-auto -mt-6 flex h-14 w-14 items-center justify-center rounded-full border border-border bg-card shadow-lg ring-4 ring-background transition-transform hover:scale-105 active:scale-95"
+          className="mx-auto -mt-6 flex h-14 w-14 items-center justify-center rounded-full border-4 border-[#FFF8F1] bg-[#351E35] shadow-[0_8px_18px_rgba(53,30,53,0.24)] ring-1 ring-[#E8D8CE] transition-transform hover:scale-105 active:scale-95"
         >
           <Mascot size={36} />
         </Link>
