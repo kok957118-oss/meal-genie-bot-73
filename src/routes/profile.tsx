@@ -15,6 +15,7 @@ import {
   Moon,
   Share2,
   Shield,
+  Sparkles,
   Star,
   Sun,
   User as UserIcon,
@@ -262,8 +263,14 @@ function SettingsPage() {
       icon: UserCog,
       to: "/onboarding",
     },
-    {
-      label: "MealMate Premium",
+      {
+        label: "Appearance",
+        description: "Themes, colors and personalization",
+        icon: Sparkles,
+        to: "/profile/appearance",
+      },
+      {
+        label: "MealMate Premium",
       description: "Unlimited AI, recipes, meal plans · 3-day free trial",
       icon: Star,
       to: "/premium",

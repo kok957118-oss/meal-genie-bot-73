@@ -36,6 +36,7 @@ import { Route as LegalPrivacyRouteImport } from './routes/legal.privacy'
 import { Route as LegalTermsRouteImport } from './routes/legal.terms'
 import { Route as OrderIdRouteImport } from './routes/order.$id'
 import { Route as PartnerDashboardRouteImport } from './routes/partner.dashboard'
+import { Route as ProfileAppearanceRouteImport } from './routes/profile.appearance'
 import { Route as RecipeSlugRouteImport } from './routes/recipe.$slug'
 import { Route as RestaurantSlugRouteImport } from './routes/restaurant.$slug'
 import { Route as ApiPublicWebhooksRevenuecatRouteImport } from './routes/api/public/webhooks.revenuecat'
@@ -175,6 +176,11 @@ const PartnerDashboardRoute = PartnerDashboardRouteImport.update({
   path: '/dashboard',
   getParentRoute: () => PartnerRoute,
 } as any)
+const ProfileAppearanceRoute = ProfileAppearanceRouteImport.update({
+  id: '/appearance',
+  path: '/appearance',
+  getParentRoute: () => ProfileRoute,
+} as any)
 const RecipeSlugRoute = RecipeSlugRouteImport.update({
   id: '/recipe/$slug',
   path: '/recipe/$slug',
@@ -208,7 +214,7 @@ export interface FileRoutesByFullPath {
   '/partner': typeof PartnerRouteWithChildren
   '/planner': typeof PlannerRoute
   '/premium': typeof PremiumRoute
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/recipes': typeof RecipesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/restaurants': typeof RestaurantsRoute
@@ -220,6 +226,7 @@ export interface FileRoutesByFullPath {
   '/legal/terms': typeof LegalTermsRoute
   '/order/$id': typeof OrderIdRoute
   '/partner/dashboard': typeof PartnerDashboardRoute
+  '/profile/appearance': typeof ProfileAppearanceRoute
   '/recipe/$slug': typeof RecipeSlugRoute
   '/restaurant/$slug': typeof RestaurantSlugRoute
   '/api/public/webhooks/revenuecat': typeof ApiPublicWebhooksRevenuecatRoute
@@ -240,7 +247,7 @@ export interface FileRoutesByTo {
   '/partner': typeof PartnerRouteWithChildren
   '/planner': typeof PlannerRoute
   '/premium': typeof PremiumRoute
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/recipes': typeof RecipesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/restaurants': typeof RestaurantsRoute
@@ -252,6 +259,7 @@ export interface FileRoutesByTo {
   '/legal/terms': typeof LegalTermsRoute
   '/order/$id': typeof OrderIdRoute
   '/partner/dashboard': typeof PartnerDashboardRoute
+  '/profile/appearance': typeof ProfileAppearanceRoute
   '/recipe/$slug': typeof RecipeSlugRoute
   '/restaurant/$slug': typeof RestaurantSlugRoute
   '/api/public/webhooks/revenuecat': typeof ApiPublicWebhooksRevenuecatRoute
@@ -273,7 +281,7 @@ export interface FileRoutesById {
   '/partner': typeof PartnerRouteWithChildren
   '/planner': typeof PlannerRoute
   '/premium': typeof PremiumRoute
-  '/profile': typeof ProfileRoute
+  '/profile': typeof ProfileRouteWithChildren
   '/recipes': typeof RecipesRoute
   '/reset-password': typeof ResetPasswordRoute
   '/restaurants': typeof RestaurantsRoute
@@ -285,6 +293,7 @@ export interface FileRoutesById {
   '/legal/terms': typeof LegalTermsRoute
   '/order/$id': typeof OrderIdRoute
   '/partner/dashboard': typeof PartnerDashboardRoute
+  '/profile/appearance': typeof ProfileAppearanceRoute
   '/recipe/$slug': typeof RecipeSlugRoute
   '/restaurant/$slug': typeof RestaurantSlugRoute
   '/api/public/webhooks/revenuecat': typeof ApiPublicWebhooksRevenuecatRoute
@@ -319,6 +328,7 @@ export interface FileRouteTypes {
     | '/legal/terms'
     | '/order/$id'
     | '/partner/dashboard'
+    | '/profile/appearance'
     | '/recipe/$slug'
     | '/restaurant/$slug'
     | '/api/public/webhooks/revenuecat'
@@ -351,6 +361,7 @@ export interface FileRouteTypes {
     | '/legal/terms'
     | '/order/$id'
     | '/partner/dashboard'
+    | '/profile/appearance'
     | '/recipe/$slug'
     | '/restaurant/$slug'
     | '/api/public/webhooks/revenuecat'
@@ -383,6 +394,7 @@ export interface FileRouteTypes {
     | '/legal/terms'
     | '/order/$id'
     | '/partner/dashboard'
+    | '/profile/appearance'
     | '/recipe/$slug'
     | '/restaurant/$slug'
     | '/api/public/webhooks/revenuecat'
@@ -404,7 +416,7 @@ export interface RootRouteChildren {
   PartnerRoute: typeof PartnerRouteWithChildren
   PlannerRoute: typeof PlannerRoute
   PremiumRoute: typeof PremiumRoute
-  ProfileRoute: typeof ProfileRoute
+  ProfileRoute: typeof ProfileRouteWithChildren
   RecipesRoute: typeof RecipesRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RestaurantsRoute: typeof RestaurantsRoute
@@ -610,6 +622,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PartnerDashboardRouteImport
       parentRoute: typeof PartnerRoute
     }
+    '/profile/appearance': {
+      id: '/profile/appearance'
+      path: '/appearance'
+      fullPath: '/profile/appearance'
+      preLoaderRoute: typeof ProfileAppearanceRouteImport
+      parentRoute: typeof ProfileRoute
+    }
     '/recipe/$slug': {
       id: '/recipe/$slug'
       path: '/recipe/$slug'
@@ -655,6 +674,17 @@ const PartnerRouteChildren: PartnerRouteChildren = {
 const PartnerRouteWithChildren =
   PartnerRoute._addFileChildren(PartnerRouteChildren)
 
+interface ProfileRouteChildren {
+  ProfileAppearanceRoute: typeof ProfileAppearanceRoute
+}
+
+const ProfileRouteChildren: ProfileRouteChildren = {
+  ProfileAppearanceRoute: ProfileAppearanceRoute,
+}
+
+const ProfileRouteWithChildren =
+  ProfileRoute._addFileChildren(ProfileRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
@@ -671,7 +701,7 @@ const rootRouteChildren: RootRouteChildren = {
   PartnerRoute: PartnerRouteWithChildren,
   PlannerRoute: PlannerRoute,
   PremiumRoute: PremiumRoute,
-  ProfileRoute: ProfileRoute,
+  ProfileRoute: ProfileRouteWithChildren,
   RecipesRoute: RecipesRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RestaurantsRoute: RestaurantsRoute,
