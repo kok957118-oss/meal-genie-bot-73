@@ -444,6 +444,7 @@ function SettingsPage() {
       <Section
         title="Privacy & Security"
         items={[
+          { label: "Security & Privacy", description: "Password, sessions, privacy and account controls", icon: Shield, to: "/profile/security" },
           { label: "Privacy Policy", description: "How we handle your data", icon: Shield, to: "/legal/privacy" },
           {
             label: "Change password",

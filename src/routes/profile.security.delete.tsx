@@ -1,0 +1,8 @@
+import { createFileRoute } from "@tanstack/react-router";
+import { AlertTriangle, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { SecurityShell, CalmNotice } from "@/components/security-ui";
+
+export const Route = createFileRoute("/profile/security/delete")({ component: DeleteAccountPage });
+function DeleteAccountPage() { const [step, setStep] = useState<1 | 2>(1); return <SecurityShell title="Delete your account" description="Take a moment to review this permanent action."><div className="rounded-3xl border border-destructive/20 bg-card p-6 shadow-sm"><div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-destructive/10 text-destructive"><Trash2 className="h-6 w-6" /></div><h2 className="mt-5 font-display text-2xl">{step === 1 ? "Delete your MealMate account?" : "Are you sure?"}</h2><p className="mt-2 text-sm leading-6 text-muted-foreground">Deleting your account is permanent. Your profile, saved recipes and MealMate history will be removed when the secure account action is connected.</p>{step === 2 && <CalmNotice><AlertTriangle className="mr-2 inline h-4 w-4" />An explicit confirmation is required before anything can be deleted.</CalmNotice>}<div className="mt-6 grid gap-3">{step === 1 ? <><Button variant="destructive" className="h-12 rounded-xl" onClick={() => setStep(2)}>Continue</Button><Button variant="outline" className="h-12 rounded-xl">Cancel</Button></> : <><Button variant="destructive" className="h-12 rounded-xl" onClick={() => setStep(1)}>Confirm account deletion</Button><Button variant="outline" className="h-12 rounded-xl" onClick={() => setStep(1)}>Cancel</Button></>}</div></div></SecurityShell>; }

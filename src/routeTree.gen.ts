@@ -37,8 +37,13 @@ import { Route as LegalTermsRouteImport } from './routes/legal.terms'
 import { Route as OrderIdRouteImport } from './routes/order.$id'
 import { Route as PartnerDashboardRouteImport } from './routes/partner.dashboard'
 import { Route as ProfileAppearanceRouteImport } from './routes/profile.appearance'
+import { Route as ProfileSecurityRouteImport } from './routes/profile.security'
 import { Route as RecipeSlugRouteImport } from './routes/recipe.$slug'
 import { Route as RestaurantSlugRouteImport } from './routes/restaurant.$slug'
+import { Route as ProfileSecurityDeleteRouteImport } from './routes/profile.security.delete'
+import { Route as ProfileSecurityPasswordRouteImport } from './routes/profile.security.password'
+import { Route as ProfileSecuritySessionsRouteImport } from './routes/profile.security.sessions'
+import { Route as ProfileSecurityVerifyEmailRouteImport } from './routes/profile.security.verify-email'
 import { Route as ApiPublicWebhooksRevenuecatRouteImport } from './routes/api/public/webhooks.revenuecat'
 
 const IndexRoute = IndexRouteImport.update({
@@ -181,6 +186,11 @@ const ProfileAppearanceRoute = ProfileAppearanceRouteImport.update({
   path: '/appearance',
   getParentRoute: () => ProfileRoute,
 } as any)
+const ProfileSecurityRoute = ProfileSecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => ProfileRoute,
+} as any)
 const RecipeSlugRoute = RecipeSlugRouteImport.update({
   id: '/recipe/$slug',
   path: '/recipe/$slug',
@@ -191,6 +201,27 @@ const RestaurantSlugRoute = RestaurantSlugRouteImport.update({
   path: '/restaurant/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileSecurityDeleteRoute = ProfileSecurityDeleteRouteImport.update({
+  id: '/delete',
+  path: '/delete',
+  getParentRoute: () => ProfileSecurityRoute,
+} as any)
+const ProfileSecurityPasswordRoute = ProfileSecurityPasswordRouteImport.update({
+  id: '/password',
+  path: '/password',
+  getParentRoute: () => ProfileSecurityRoute,
+} as any)
+const ProfileSecuritySessionsRoute = ProfileSecuritySessionsRouteImport.update({
+  id: '/sessions',
+  path: '/sessions',
+  getParentRoute: () => ProfileSecurityRoute,
+} as any)
+const ProfileSecurityVerifyEmailRoute =
+  ProfileSecurityVerifyEmailRouteImport.update({
+    id: '/verify-email',
+    path: '/verify-email',
+    getParentRoute: () => ProfileSecurityRoute,
+  } as any)
 const ApiPublicWebhooksRevenuecatRoute =
   ApiPublicWebhooksRevenuecatRouteImport.update({
     id: '/api/public/webhooks/revenuecat',
@@ -227,8 +258,13 @@ export interface FileRoutesByFullPath {
   '/order/$id': typeof OrderIdRoute
   '/partner/dashboard': typeof PartnerDashboardRoute
   '/profile/appearance': typeof ProfileAppearanceRoute
+  '/profile/security': typeof ProfileSecurityRouteWithChildren
   '/recipe/$slug': typeof RecipeSlugRoute
   '/restaurant/$slug': typeof RestaurantSlugRoute
+  '/profile/security/delete': typeof ProfileSecurityDeleteRoute
+  '/profile/security/password': typeof ProfileSecurityPasswordRoute
+  '/profile/security/sessions': typeof ProfileSecuritySessionsRoute
+  '/profile/security/verify-email': typeof ProfileSecurityVerifyEmailRoute
   '/api/public/webhooks/revenuecat': typeof ApiPublicWebhooksRevenuecatRoute
 }
 export interface FileRoutesByTo {
@@ -260,8 +296,13 @@ export interface FileRoutesByTo {
   '/order/$id': typeof OrderIdRoute
   '/partner/dashboard': typeof PartnerDashboardRoute
   '/profile/appearance': typeof ProfileAppearanceRoute
+  '/profile/security': typeof ProfileSecurityRouteWithChildren
   '/recipe/$slug': typeof RecipeSlugRoute
   '/restaurant/$slug': typeof RestaurantSlugRoute
+  '/profile/security/delete': typeof ProfileSecurityDeleteRoute
+  '/profile/security/password': typeof ProfileSecurityPasswordRoute
+  '/profile/security/sessions': typeof ProfileSecuritySessionsRoute
+  '/profile/security/verify-email': typeof ProfileSecurityVerifyEmailRoute
   '/api/public/webhooks/revenuecat': typeof ApiPublicWebhooksRevenuecatRoute
 }
 export interface FileRoutesById {
@@ -294,8 +335,13 @@ export interface FileRoutesById {
   '/order/$id': typeof OrderIdRoute
   '/partner/dashboard': typeof PartnerDashboardRoute
   '/profile/appearance': typeof ProfileAppearanceRoute
+  '/profile/security': typeof ProfileSecurityRouteWithChildren
   '/recipe/$slug': typeof RecipeSlugRoute
   '/restaurant/$slug': typeof RestaurantSlugRoute
+  '/profile/security/delete': typeof ProfileSecurityDeleteRoute
+  '/profile/security/password': typeof ProfileSecurityPasswordRoute
+  '/profile/security/sessions': typeof ProfileSecuritySessionsRoute
+  '/profile/security/verify-email': typeof ProfileSecurityVerifyEmailRoute
   '/api/public/webhooks/revenuecat': typeof ApiPublicWebhooksRevenuecatRoute
 }
 export interface FileRouteTypes {
@@ -329,8 +375,13 @@ export interface FileRouteTypes {
     | '/order/$id'
     | '/partner/dashboard'
     | '/profile/appearance'
+    | '/profile/security'
     | '/recipe/$slug'
     | '/restaurant/$slug'
+    | '/profile/security/delete'
+    | '/profile/security/password'
+    | '/profile/security/sessions'
+    | '/profile/security/verify-email'
     | '/api/public/webhooks/revenuecat'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -362,8 +413,13 @@ export interface FileRouteTypes {
     | '/order/$id'
     | '/partner/dashboard'
     | '/profile/appearance'
+    | '/profile/security'
     | '/recipe/$slug'
     | '/restaurant/$slug'
+    | '/profile/security/delete'
+    | '/profile/security/password'
+    | '/profile/security/sessions'
+    | '/profile/security/verify-email'
     | '/api/public/webhooks/revenuecat'
   id:
     | '__root__'
@@ -395,8 +451,13 @@ export interface FileRouteTypes {
     | '/order/$id'
     | '/partner/dashboard'
     | '/profile/appearance'
+    | '/profile/security'
     | '/recipe/$slug'
     | '/restaurant/$slug'
+    | '/profile/security/delete'
+    | '/profile/security/password'
+    | '/profile/security/sessions'
+    | '/profile/security/verify-email'
     | '/api/public/webhooks/revenuecat'
   fileRoutesById: FileRoutesById
 }
@@ -629,6 +690,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileAppearanceRouteImport
       parentRoute: typeof ProfileRoute
     }
+    '/profile/security': {
+      id: '/profile/security'
+      path: '/security'
+      fullPath: '/profile/security'
+      preLoaderRoute: typeof ProfileSecurityRouteImport
+      parentRoute: typeof ProfileRoute
+    }
     '/recipe/$slug': {
       id: '/recipe/$slug'
       path: '/recipe/$slug'
@@ -642,6 +710,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/restaurant/$slug'
       preLoaderRoute: typeof RestaurantSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/profile/security/delete': {
+      id: '/profile/security/delete'
+      path: '/delete'
+      fullPath: '/profile/security/delete'
+      preLoaderRoute: typeof ProfileSecurityDeleteRouteImport
+      parentRoute: typeof ProfileSecurityRoute
+    }
+    '/profile/security/password': {
+      id: '/profile/security/password'
+      path: '/password'
+      fullPath: '/profile/security/password'
+      preLoaderRoute: typeof ProfileSecurityPasswordRouteImport
+      parentRoute: typeof ProfileSecurityRoute
+    }
+    '/profile/security/sessions': {
+      id: '/profile/security/sessions'
+      path: '/sessions'
+      fullPath: '/profile/security/sessions'
+      preLoaderRoute: typeof ProfileSecuritySessionsRouteImport
+      parentRoute: typeof ProfileSecurityRoute
+    }
+    '/profile/security/verify-email': {
+      id: '/profile/security/verify-email'
+      path: '/verify-email'
+      fullPath: '/profile/security/verify-email'
+      preLoaderRoute: typeof ProfileSecurityVerifyEmailRouteImport
+      parentRoute: typeof ProfileSecurityRoute
     }
     '/api/public/webhooks/revenuecat': {
       id: '/api/public/webhooks/revenuecat'
@@ -674,12 +770,32 @@ const PartnerRouteChildren: PartnerRouteChildren = {
 const PartnerRouteWithChildren =
   PartnerRoute._addFileChildren(PartnerRouteChildren)
 
+interface ProfileSecurityRouteChildren {
+  ProfileSecurityDeleteRoute: typeof ProfileSecurityDeleteRoute
+  ProfileSecurityPasswordRoute: typeof ProfileSecurityPasswordRoute
+  ProfileSecuritySessionsRoute: typeof ProfileSecuritySessionsRoute
+  ProfileSecurityVerifyEmailRoute: typeof ProfileSecurityVerifyEmailRoute
+}
+
+const ProfileSecurityRouteChildren: ProfileSecurityRouteChildren = {
+  ProfileSecurityDeleteRoute: ProfileSecurityDeleteRoute,
+  ProfileSecurityPasswordRoute: ProfileSecurityPasswordRoute,
+  ProfileSecuritySessionsRoute: ProfileSecuritySessionsRoute,
+  ProfileSecurityVerifyEmailRoute: ProfileSecurityVerifyEmailRoute,
+}
+
+const ProfileSecurityRouteWithChildren = ProfileSecurityRoute._addFileChildren(
+  ProfileSecurityRouteChildren,
+)
+
 interface ProfileRouteChildren {
   ProfileAppearanceRoute: typeof ProfileAppearanceRoute
+  ProfileSecurityRoute: typeof ProfileSecurityRouteWithChildren
 }
 
 const ProfileRouteChildren: ProfileRouteChildren = {
   ProfileAppearanceRoute: ProfileAppearanceRoute,
+  ProfileSecurityRoute: ProfileSecurityRouteWithChildren,
 }
 
 const ProfileRouteWithChildren =
