@@ -11,7 +11,7 @@ import {
   UserRound,
   Utensils,
 } from "lucide-react";
-import { MealMateLogo } from "@/components/mealmate-logo";
+import { MascotPreview, MealMateLogo } from "@/components/mealmate-logo";
 import { Button } from "@/components/ui/button";
 import { usePreferences } from "@/hooks/use-preferences";
 import { useSession } from "@/hooks/use-session";
@@ -203,7 +203,7 @@ function Welcome({ onExplore, onSkip }: { onExplore: () => void; onSkip: () => v
         </header>
         <div className="flex flex-1 flex-col items-center justify-center text-center">
           <div className="welcome-logo mb-10 rounded-[2rem] border border-border bg-card p-5 shadow-[0_24px_80px_-32px_rgba(0,0,0,.4)]">
-            <MealMateLogo imageClassName="size-36" className="flex-col gap-3" />
+            <MascotPreview theme="classic" className="size-36 rounded-[1.5rem]" />
           </div>
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">
             Your everyday food companion
