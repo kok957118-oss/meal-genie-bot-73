@@ -1,7 +1,11 @@
 // MealMate personalization preferences.
 // Guests keep answers locally; signed-in users sync them to their profile.
 
+export type MealMateTheme =
+  "classic" | "sunset" | "midnight" | "ocean" | "cherry" | "matcha" | "monochrome";
+
 export type FoodPreferences = {
+  theme: MealMateTheme;
   goal: string | null;
   favorite_foods: string[];
   allergies: string[];
@@ -17,6 +21,7 @@ export type FoodPreferences = {
 };
 
 export const EMPTY_PREFERENCES: FoodPreferences = {
+  theme: "classic",
   goal: null,
   favorite_foods: [],
   allergies: [],
@@ -45,7 +50,19 @@ function asString(v: unknown): string | null {
 
 export function normalizePreferences(raw: unknown): FoodPreferences {
   const o = (raw ?? {}) as Record<string, unknown>;
+  const theme = [
+    "classic",
+    "sunset",
+    "midnight",
+    "ocean",
+    "cherry",
+    "matcha",
+    "monochrome",
+  ].includes(String(o["theme"]))
+    ? (o["theme"] as MealMateTheme)
+    : "classic";
   return {
+    theme,
     goal: asString(o["goal"]),
     favorite_foods: asStringArray(o["favorite_foods"]),
     allergies: asStringArray(o["allergies"]),
@@ -116,7 +133,10 @@ export function avoidTerms(prefs: FoodPreferences): string[] {
     .filter((t) => t.length > 2);
 }
 
-export function isAvoided(prefs: FoodPreferences, ...text: (string | null | undefined | string[])[]): boolean {
+export function isAvoided(
+  prefs: FoodPreferences,
+  ...text: (string | null | undefined | string[])[]
+): boolean {
   const hay = haystack(...text);
   if (!hay) return false;
   return avoidTerms(prefs).some((term) => hay.includes(term));
@@ -165,7 +185,8 @@ export function preferenceSummary(prefs: FoodPreferences): string {
   if (prefs.goal) bits.push(`Goal: ${prefs.goal}`);
   if (prefs.favorite_foods.length) bits.push(`Enjoys: ${prefs.favorite_foods.join(", ")}`);
   if (prefs.allergies.length) bits.push(`Must avoid: ${prefs.allergies.join(", ")}`);
-  if (prefs.dietary_restrictions.length) bits.push(`Diet: ${prefs.dietary_restrictions.join(", ")}`);
+  if (prefs.dietary_restrictions.length)
+    bits.push(`Diet: ${prefs.dietary_restrictions.join(", ")}`);
   if (prefs.disliked_foods.length) bits.push(`Dislikes: ${prefs.disliked_foods.join(", ")}`);
   if (prefs.cooking_time) bits.push(`Time to cook: ${prefs.cooking_time}`);
   if (prefs.cooking_level) bits.push(`Skill: ${prefs.cooking_level}`);

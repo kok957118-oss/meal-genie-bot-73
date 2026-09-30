@@ -27,7 +27,8 @@ import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useTheme } from "@/components/theme-provider";
+import { MASCOT_THEMES, useTheme } from "@/components/theme-provider";
+import { MascotPreview } from "@/components/mealmate-logo";
 import { GamificationCard } from "@/components/gamification-card";
 import {
   Select,
@@ -87,16 +88,31 @@ const LANGUAGES: { code: string; name: string }[] = [
 
 // Best-effort region → currency map for first-launch defaults.
 const REGION_CURRENCY: Record<string, string> = {
-  US: "USD", ZA: "ZAR", GB: "GBP", IE: "EUR", DE: "EUR", FR: "EUR", ES: "EUR",
-  IT: "EUR", NL: "EUR", PT: "EUR", AT: "EUR", BE: "EUR", FI: "EUR", GR: "EUR",
-  AU: "AUD", CA: "CAD", NZ: "NZD",
+  US: "USD",
+  ZA: "ZAR",
+  GB: "GBP",
+  IE: "EUR",
+  DE: "EUR",
+  FR: "EUR",
+  ES: "EUR",
+  IT: "EUR",
+  NL: "EUR",
+  PT: "EUR",
+  AT: "EUR",
+  BE: "EUR",
+  FI: "EUR",
+  GR: "EUR",
+  AU: "AUD",
+  CA: "CAD",
+  NZ: "NZD",
 };
 
 function detectCurrency(): string {
   if (typeof navigator === "undefined") return "USD";
   const region =
     (Intl.DateTimeFormat().resolvedOptions() as { locale?: string }).locale
-      ?.split("-")?.[1]?.toUpperCase() ?? "";
+      ?.split("-")?.[1]
+      ?.toUpperCase() ?? "";
   return REGION_CURRENCY[region] ?? "USD";
 }
 
@@ -111,7 +127,7 @@ function SettingsPage() {
   }, [loading, user, navigate]);
   const queryClient = useQueryClient();
 
-  const { resolved, setMode } = useTheme();
+  const { resolved, setMode, mascotTheme, setMascotTheme } = useTheme();
 
   // Notifications (local pref)
   const [notif, setNotif] = useState(true);
@@ -146,7 +162,9 @@ function SettingsPage() {
     const storedLang = window.localStorage.getItem("mealmate-lang");
     setCurrency(prefs?.currency ?? storedCur ?? detectCurrency());
     setLang(prefs?.locale ?? storedLang ?? "en");
-    setDisplayName(prefs?.display_name ?? user?.user_metadata?.display_name ?? user?.email?.split("@")[0] ?? "");
+    setDisplayName(
+      prefs?.display_name ?? user?.user_metadata?.display_name ?? user?.email?.split("@")[0] ?? "",
+    );
   }, [prefs]);
 
   async function saveDisplayName() {
@@ -291,19 +309,49 @@ function SettingsPage() {
   ];
 
   const supportItems: Item[] = [
-    { label: "Help Center", description: "Answers to common questions", icon: HelpCircle, to: "/support" },
-    { label: "Contact support", description: "Get in touch with the team", icon: Mail, href: "mailto:support@mealmate.app" },
+    {
+      label: "Help Center",
+      description: "Answers to common questions",
+      icon: HelpCircle,
+      to: "/support",
+    },
+    {
+      label: "Contact support",
+      description: "Get in touch with the team",
+      icon: Mail,
+      href: "mailto:support@mealmate.app",
+    },
   ];
 
   const aboutItems: Item[] = [
     { label: "About MealMate", description: "Version and credits", icon: Info, to: "/about" },
-    { label: "Follow on Instagram", description: "@mealmate.sp", icon: Share2, href: "https://www.instagram.com/mealmate.sp" },
-    { label: "Follow on TikTok", description: "@mealmate.sp", icon: Share2, href: "https://www.tiktok.com/@mealmate.sp" },
+    {
+      label: "Follow on Instagram",
+      description: "@mealmate.sp",
+      icon: Share2,
+      href: "https://www.instagram.com/mealmate.sp",
+    },
+    {
+      label: "Follow on TikTok",
+      description: "@mealmate.sp",
+      icon: Share2,
+      href: "https://www.tiktok.com/@mealmate.sp",
+    },
   ];
 
   const legalItems: Item[] = [
-    { label: "Terms of Service", description: "The rules for using MealMate", icon: FileText, to: "/legal/terms" },
-    { label: "Privacy Policy", description: "How we handle your data", icon: Shield, to: "/legal/privacy" },
+    {
+      label: "Terms of Service",
+      description: "The rules for using MealMate",
+      icon: FileText,
+      to: "/legal/terms",
+    },
+    {
+      label: "Privacy Policy",
+      description: "How we handle your data",
+      icon: Shield,
+      to: "/legal/privacy",
+    },
   ];
 
   if (loading || !user) {
@@ -333,7 +381,9 @@ function SettingsPage() {
 
       {user && (
         <section className="mt-6 rounded-2xl border border-border bg-card p-4 shadow-sm">
-          <Label htmlFor="display-name" className="text-sm font-medium">Display name</Label>
+          <Label htmlFor="display-name" className="text-sm font-medium">
+            Display name
+          </Label>
           <div className="mt-2 flex gap-2">
             <Input
               id="display-name"
@@ -343,7 +393,11 @@ function SettingsPage() {
               placeholder="Your name"
               autoComplete="name"
             />
-            <Button type="button" onClick={saveDisplayName} disabled={savingName || !displayName.trim()}>
+            <Button
+              type="button"
+              onClick={saveDisplayName}
+              disabled={savingName || !displayName.trim()}
+            >
               {savingName ? "Saving" : "Save"}
             </Button>
           </div>
@@ -372,7 +426,8 @@ function SettingsPage() {
         items={[
           {
             label: resolved === "dark" ? "Dark mode" : "Light mode",
-            description: resolved === "dark" ? "Easier on your eyes at night" : "Bright and airy interface",
+            description:
+              resolved === "dark" ? "Easier on your eyes at night" : "Bright and airy interface",
             icon: resolved === "dark" ? Moon : Sun,
             onClick: () => setMode(resolved === "dark" ? "light" : "dark"),
             trailing: (
@@ -385,6 +440,42 @@ function SettingsPage() {
           },
         ]}
       />
+
+      <section className="mt-6">
+        <div className="mb-2 flex items-end justify-between px-2">
+          <div>
+            <h2 className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              MealMate mascot
+            </h2>
+            <p className="mt-1 text-xs text-muted-foreground">
+              Choose your accent personality. Black and white stays at the core.
+            </p>
+          </div>
+          <span className="rounded-full bg-primary/10 px-2 py-1 text-[10px] font-semibold uppercase tracking-wider text-primary">
+            {MASCOT_THEMES.find((item) => item.id === mascotTheme)?.name}
+          </span>
+        </div>
+        <div className="grid grid-cols-4 gap-2 rounded-2xl border border-border bg-card p-3 shadow-sm sm:grid-cols-7">
+          {MASCOT_THEMES.map((item) => {
+            const active = item.id === mascotTheme;
+            return (
+              <button
+                key={item.id}
+                type="button"
+                aria-label={`Use ${item.name} theme`}
+                aria-pressed={active}
+                onClick={() => setMascotTheme(item.id)}
+                className={`group flex min-w-0 flex-col items-center gap-1.5 rounded-xl p-1.5 transition-all duration-300 ${active ? "bg-primary/10 ring-2 ring-primary ring-offset-2 ring-offset-background" : "hover:bg-muted"}`}
+              >
+                <MascotPreview theme={item.id} className="size-12 rounded-xl sm:size-14" />
+                <span className="w-full truncate text-center text-[10px] font-medium text-foreground">
+                  {item.name}
+                </span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
       <Section
         title="Region"
@@ -437,7 +528,12 @@ function SettingsPage() {
       <Section
         title="Privacy & Security"
         items={[
-          { label: "Privacy Policy", description: "How we handle your data", icon: Shield, to: "/legal/privacy" },
+          {
+            label: "Privacy Policy",
+            description: "How we handle your data",
+            icon: Shield,
+            to: "/legal/privacy",
+          },
           {
             label: "Change password",
             description: "Send a secure reset link to your email",
@@ -469,9 +565,7 @@ function SettingsPage() {
         </div>
       )}
 
-      <p className="mt-8 text-center text-xs text-muted-foreground">
-        MealMate · Made with care
-      </p>
+      <p className="mt-8 text-center text-xs text-muted-foreground">MealMate · Made with care</p>
     </main>
   );
 }
@@ -504,18 +598,22 @@ function Row({ item }: { item: Item }) {
       <div className="min-w-0 flex-1">
         <p className="text-sm font-medium leading-tight">{item.label}</p>
         {item.description && (
-          <p className="mt-0.5 truncate text-xs text-muted-foreground">
-            {item.description}
-          </p>
+          <p className="mt-0.5 truncate text-xs text-muted-foreground">{item.description}</p>
         )}
       </div>
-      {item.trailing ?? (showChevron ? <ChevronRight className="h-4 w-4 text-muted-foreground" /> : null)}
+      {item.trailing ??
+        (showChevron ? <ChevronRight className="h-4 w-4 text-muted-foreground" /> : null)}
     </div>
   );
 
   if (item.href) {
     return (
-      <a href={item.href} target={item.href.startsWith("http") ? "_blank" : undefined} rel="noreferrer" className="block">
+      <a
+        href={item.href}
+        target={item.href.startsWith("http") ? "_blank" : undefined}
+        rel="noreferrer"
+        className="block"
+      >
         {body}
       </a>
     );
