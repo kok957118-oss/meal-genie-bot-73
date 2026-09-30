@@ -15,7 +15,8 @@ export type ThemeMode = "light" | "dark" | "system";
 export type ResolvedTheme = "light" | "dark";
 
 const STORAGE_KEY = "mealmate-theme-mode";
-export const MASCOT_ART_URL =
+export const MASCOT_ART_URL = "/mealmate-mascot-themes.png";
+export const LEGACY_MASCOT_ART_URL =
   "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/file_000000006b44820885d02f97d6a7c81b-ZTSvA8hP8k0v8QGsP1YTCwZyu16ABR.png";
 
 export const MASCOT_THEMES: Array<{
@@ -38,16 +39,16 @@ export const MASCOT_THEMES: Array<{
     id: "sunset",
     name: "Sunset Kitchen",
     accent: "#f97316",
-    position: "33.333% 0%",
-    size: "400% 200%",
+    position: "0% 0%",
+    size: "300% 200%",
     description: "Warm, bright kitchen energy",
   },
   {
     id: "midnight",
     name: "Midnight",
     accent: "#8b5cf6",
-    position: "66.666% 0%",
-    size: "400% 200%",
+    position: "50% 0%",
+    size: "300% 200%",
     description: "A rich violet after-dark mood",
   },
   {
@@ -55,7 +56,7 @@ export const MASCOT_THEMES: Array<{
     name: "Ocean",
     accent: "#06b6d4",
     position: "100% 0%",
-    size: "400% 200%",
+    size: "300% 200%",
     description: "Fresh blue with citrus lift",
   },
   {
@@ -63,15 +64,15 @@ export const MASCOT_THEMES: Array<{
     name: "Cherry",
     accent: "#f43f5e",
     position: "0% 100%",
-    size: "300% 200%",
+    size: "200% 200%",
     description: "Playful berry red",
   },
   {
     id: "matcha",
     name: "Matcha",
     accent: "#84cc16",
-    position: "50% 100%",
-    size: "300% 200%",
+    position: "100% 100%",
+    size: "200% 200%",
     description: "Leafy, grounded green",
   },
   {
@@ -217,6 +218,10 @@ export function useTheme() {
   const context = useContext(ThemeContext);
   if (!context) throw new Error("useTheme must be used within ThemeProvider");
   return context;
+}
+
+export function mascotArtUrl(theme: MealMateTheme) {
+  return theme === "classic" || theme === "monochrome" ? LEGACY_MASCOT_ART_URL : MASCOT_ART_URL;
 }
 
 export function mascotPosition(theme: MealMateTheme) {

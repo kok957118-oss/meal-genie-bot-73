@@ -1,5 +1,5 @@
 import { cn } from "@/lib/utils";
-import { MASCOT_ART_URL, mascotPosition, mascotSize, useTheme } from "@/components/theme-provider";
+import { mascotArtUrl, mascotPosition, mascotSize, useTheme } from "@/components/theme-provider";
 import type { MealMateTheme } from "@/lib/preferences";
 
 export function MealMateLogo({
@@ -25,7 +25,7 @@ export function MealMateLogo({
           imageClassName,
         )}
         style={{
-          backgroundImage: `url(${MASCOT_ART_URL})`,
+          backgroundImage: `url(${mascotArtUrl(activeTheme)})`,
           backgroundPosition: mascotPosition(activeTheme),
           backgroundSize: mascotSize(activeTheme),
         }}
@@ -43,7 +43,7 @@ export function MascotPreview({ theme, className }: { theme: MealMateTheme; clas
         className,
       )}
       style={{
-        backgroundImage: `url(${MASCOT_ART_URL})`,
+        backgroundImage: `url(${mascotArtUrl(theme)})`,
         backgroundPosition: mascotPosition(theme),
         backgroundSize: mascotSize(theme),
       }}
