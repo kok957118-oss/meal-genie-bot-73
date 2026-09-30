@@ -28,6 +28,7 @@ import { Switch } from "@/components/ui/switch";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { MASCOT_THEMES, useTheme } from "@/components/theme-provider";
+import { usePremium } from "@/hooks/use-premium";
 import { MascotPreview } from "@/components/mealmate-logo";
 import { GamificationCard } from "@/components/gamification-card";
 import {
@@ -128,6 +129,7 @@ function SettingsPage() {
   const queryClient = useQueryClient();
 
   const { resolved, setMode, mascotTheme, setMascotTheme } = useTheme();
+  const { isPremium } = usePremium();
 
   // Notifications (local pref)
   const [notif, setNotif] = useState(true);
@@ -458,19 +460,35 @@ function SettingsPage() {
         <div className="grid grid-cols-4 gap-2 rounded-2xl border border-border bg-card p-3 shadow-sm sm:grid-cols-7">
           {MASCOT_THEMES.map((item) => {
             const active = item.id === mascotTheme;
+            const premiumOnly = item.id !== "classic" && item.id !== "monochrome";
+            const locked = premiumOnly && !isPremium;
             return (
               <button
                 key={item.id}
                 type="button"
-                aria-label={`Use ${item.name} theme`}
+                aria-label={locked ? `${item.name} theme, Premium` : `Use ${item.name} theme`}
                 aria-pressed={active}
-                onClick={() => setMascotTheme(item.id)}
-                className={`group flex min-w-0 flex-col items-center gap-1.5 rounded-xl p-1.5 transition-all duration-300 ${active ? "bg-primary/10 ring-2 ring-primary ring-offset-2 ring-offset-background" : "hover:bg-muted"}`}
+                onClick={() => {
+                  if (locked) {
+                    navigate({ to: "/premium" });
+                    return;
+                  }
+                  setMascotTheme(item.id);
+                }}
+                className={`group relative flex min-w-0 flex-col items-center gap-1.5 rounded-xl p-1.5 transition-all duration-300 ${active ? "bg-primary/10 ring-2 ring-primary ring-offset-2 ring-offset-background" : "hover:bg-muted"} ${locked ? "opacity-75" : ""}`}
               >
                 <MascotPreview theme={item.id} className="size-12 rounded-xl sm:size-14" />
+                {locked ? (
+                  <Lock className="absolute right-1 top-1 size-3.5 rounded-full bg-background/90 p-0.5 text-muted-foreground" />
+                ) : null}
                 <span className="w-full truncate text-center text-[10px] font-medium text-foreground">
                   {item.name}
                 </span>
+                {locked ? (
+                  <span className="text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">
+                    Premium
+                  </span>
+                ) : null}
               </button>
             );
           })}
