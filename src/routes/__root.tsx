@@ -26,6 +26,7 @@ import { UpgradeModalProvider } from "@/components/upgrade-modal";
 import { shouldOfferOnboarding } from "@/lib/preferences";
 import { useSession } from "@/hooks/use-session";
 import { useShellMetrics } from "@/hooks/use-shell-metrics";
+import { usePreferences } from "@/hooks/use-preferences";
 
 function NotFoundComponent() {
   return (
@@ -117,20 +118,45 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "MealMate — Cook the world, one recipe at a time" },
-      { name: "description", content: "MealMate generates authentic recipes from around the world with AI, plans your week, and builds your grocery list. From pap and chakalaka to global classics." },
-      { property: "og:description", content: "MealMate generates authentic recipes from around the world with AI, plans your week, and builds your grocery list. From pap and chakalaka to global classics." },
-      { name: "twitter:description", content: "MealMate generates authentic recipes from around the world with AI, plans your week, and builds your grocery list. From pap and chakalaka to global classics." },
-      { property: "og:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/4iT0BKXaImfx8JUyziQgQ6AvHez2/social-images/social-1783155623309-1000454250.webp" },
-      { name: "twitter:image", content: "https://storage.googleapis.com/gpt-engineer-file-uploads/4iT0BKXaImfx8JUyziQgQ6AvHez2/social-images/social-1783155623309-1000454250.webp" },
+      {
+        name: "description",
+        content:
+          "MealMate generates authentic recipes from around the world with AI, plans your week, and builds your grocery list. From pap and chakalaka to global classics.",
+      },
+      {
+        property: "og:description",
+        content:
+          "MealMate generates authentic recipes from around the world with AI, plans your week, and builds your grocery list. From pap and chakalaka to global classics.",
+      },
+      {
+        name: "twitter:description",
+        content:
+          "MealMate generates authentic recipes from around the world with AI, plans your week, and builds your grocery list. From pap and chakalaka to global classics.",
+      },
+      {
+        property: "og:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/4iT0BKXaImfx8JUyziQgQ6AvHez2/social-images/social-1783155623309-1000454250.webp",
+      },
+      {
+        name: "twitter:image",
+        content:
+          "https://storage.googleapis.com/gpt-engineer-file-uploads/4iT0BKXaImfx8JUyziQgQ6AvHez2/social-images/social-1783155623309-1000454250.webp",
+      },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
       { rel: "icon", href: "/favicon.png", type: "image/png", id: "app-icon" },
       { rel: "manifest", href: "/manifest.webmanifest" },
-      { rel: "apple-touch-icon", href: "/apple-touch-icon.png", sizes: "180x180", id: "apple-touch-icon" },
+      {
+        rel: "apple-touch-icon",
+        href: "/apple-touch-icon.png",
+        sizes: "180x180",
+        id: "apple-touch-icon",
+      },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-           // Only the weights actually used (400 body, 600 medium emphasis, 700 bold)
+      // Only the weights actually used (400 body, 600 medium emphasis, 700 bold)
       // plus the upright serif display face. swap keeps text visible immediately.
       {
         rel: "stylesheet",
@@ -163,29 +189,31 @@ function RootComponent() {
   const router = useRouter();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const { user } = useSession();
-  const isMarketplace =
-    pathname === "/restaurants" || pathname.startsWith("/restaurant/");
-  const showAppHeader = pathname !== "/" && !isMarketplace;
+  const { hasPreferences, loading: preferencesLoading } = usePreferences();
+  const isMarketplace = pathname === "/restaurants" || pathname.startsWith("/restaurant/");
+  const isEntryFlow = pathname === "/onboarding" || pathname === "/auth";
+  const showAppHeader = pathname !== "/" && !isMarketplace && !isEntryFlow;
   useShellMetrics(showAppHeader ? "with-header" : "no-header");
 
   // First open: the 8-question setup comes before sign-up. Signed-in users
   // who already finished onboarding go straight to the app.
   useEffect(() => {
-    if (pathname !== "/" || user) return;
-    if (shouldOfferOnboarding()) {
+    if (pathname !== "/" || preferencesLoading) return;
+    if (!user && shouldOfferOnboarding()) {
       void router.navigate({ to: "/onboarding", replace: true });
     }
-  }, [pathname, router, user]);
+  }, [pathname, router, user, preferencesLoading]);
 
   useEffect(() => {
-    if (pathname !== "/onboarding" || shouldOfferOnboarding()) return;
+    if (pathname !== "/onboarding" || shouldOfferOnboarding() || preferencesLoading) return;
+    if (!user && !hasPreferences) return;
+    if (user && !hasPreferences) return;
     void router.navigate({ to: "/", replace: true });
-  }, [pathname, router]);
+  }, [pathname, router, user, hasPreferences, preferencesLoading]);
 
   useEffect(() => {
     const { data: sub } = supabase.auth.onAuthStateChange((event) => {
-      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED")
-        return;
+      if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
       if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
     });
@@ -197,7 +225,9 @@ function RootComponent() {
       <ThemeProvider>
         <LocaleProvider>
           <UpgradeModalProvider>
-            <div className={`h-dvh w-full overflow-hidden bg-background ${isMarketplace ? "marketplace-dark" : ""}`}>
+            <div
+              className={`h-dvh w-full overflow-hidden bg-background ${isMarketplace ? "marketplace-dark" : ""}`}
+            >
               {showAppHeader && <AppHeader />}
               {/* The one scroll container. Header and nav are siblings, not children. */}
               <div
@@ -212,7 +242,7 @@ function RootComponent() {
                   </AuthGate>
                 </div>
               </div>
-              {isMarketplace ? <MarketplaceBottomNav /> : <BottomNav />}
+              {!isEntryFlow && (isMarketplace ? <MarketplaceBottomNav /> : <BottomNav />)}
             </div>
             <OfflinePopup />
             <Toaster position="top-center" />

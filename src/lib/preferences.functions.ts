@@ -4,6 +4,9 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { normalizePreferences, type FoodPreferences } from "@/lib/preferences";
 
 const prefsSchema = z.object({
+  theme: z
+    .enum(["classic", "sunset", "midnight", "ocean", "cherry", "matcha", "monochrome"])
+    .default("classic"),
   goal: z.string().max(60).nullable().default(null),
   favorite_foods: z.array(z.string().max(60)).max(30).default([]),
   allergies: z.array(z.string().max(60)).max(40).default([]),
@@ -35,16 +38,14 @@ export const saveMyPreferences = createServerFn({ method: "POST" })
   .inputValidator((v: unknown) => prefsSchema.parse(v))
   .handler(async ({ data, context }) => {
     const payload = { ...data, updated_at: new Date().toISOString() };
-    const { error } = await context.supabase
-      .from("profiles")
-      .upsert(
-        {
-          id: context.userId,
-          preferences: payload,
-          onboarding_completed: data.onboarding_completed,
-        },
-        { onConflict: "id" },
-      );
+    const { error } = await context.supabase.from("profiles").upsert(
+      {
+        id: context.userId,
+        preferences: payload,
+        onboarding_completed: data.onboarding_completed,
+      },
+      { onConflict: "id" },
+    );
     if (error) throw new Error(error.message);
     return { ok: true };
   });

@@ -1,6 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Loader2 } from "lucide-react";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { MealMateLogo } from "@/components/mealmate-logo";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,19 +10,26 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
 export const Route = createFileRoute("/auth")({
-  head: () => ({ meta: [
-    { title: "Sign in | MealMate" },
-    { name: "description", content: "Sign in or create your MealMate account to save recipes, lists, and meal plans." },
-    { property: "og:title", content: "Sign in | MealMate" },
-    { property: "og:description", content: "Access your saved recipes, lists, and meal plans." },
-    { property: "og:type", content: "website" },
-    { name: "twitter:card", content: "summary" },
-  ] }),
+  head: () => ({
+    meta: [
+      { title: "Sign in | MealMate" },
+      {
+        name: "description",
+        content: "Sign in or create your MealMate account to save recipes, lists, and meal plans.",
+      },
+      { property: "og:title", content: "Sign in | MealMate" },
+      { property: "og:description", content: "Access your saved recipes, lists, and meal plans." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary" },
+    ],
+  }),
   component: AuthPage,
 });
 
 function getAuthRedirectUrl(path: string): string {
-  const configured = import.meta.env["VITE_SUPABASE_REDIRECT_URL"] || process.env["NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL"];
+  const configured =
+    import.meta.env["VITE_SUPABASE_REDIRECT_URL"] ||
+    process.env["NEXT_PUBLIC_DEV_SUPABASE_REDIRECT_URL"];
   if (configured) {
     const base = configured.replace(/\/$/, "");
     return `${base}${path}`;
@@ -42,7 +49,10 @@ function extractErrorMessage(err: unknown, fallback: string): string {
 
 function authErrorMessage(err: unknown): string {
   const message = extractErrorMessage(err, "Authentication failed").toLowerCase();
-  if (message.includes("invalid login credentials") || message.includes("invalid email or password")) {
+  if (
+    message.includes("invalid login credentials") ||
+    message.includes("invalid email or password")
+  ) {
     return "Invalid email or password.";
   }
   if (message.includes("email not confirmed")) {
@@ -59,16 +69,22 @@ function authErrorMessage(err: unknown): string {
 
 function AuthPage() {
   const navigate = useNavigate();
+  const search = useRouterState({ select: (state) => state.location.search as { mode?: string } });
   const { user, loading } = useSession();
   const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [busy, setBusy] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    if (!loading && user) navigate({ to: "/", replace: true });
-  }, [user, loading, navigate]);
+    if (search.mode === "signup") setMode("signup");
+  }, [search.mode]);
+
+  useEffect(() => {
+    if (!loading && user && mode !== "signup") navigate({ to: "/", replace: true });
+  }, [user, loading, mode, navigate]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -100,10 +116,13 @@ function AuthPage() {
         }
         toast.success("Welcome to MealMate!");
       } else {
-        const { error } = await supabase.auth.signInWithPassword({ email: normalizedEmail, password });
+        const { error } = await supabase.auth.signInWithPassword({
+          email: normalizedEmail,
+          password,
+        });
         if (error) throw error;
       }
-      navigate({ to: "/", replace: true });
+      navigate({ to: mode === "signup" ? "/onboarding" : "/", replace: true });
     } catch (err) {
       console.error("[Auth] submit error:", err);
       toast.error(authErrorMessage(err));
@@ -152,15 +171,26 @@ function AuthPage() {
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              type="password"
-              required
-              minLength={6}
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                required
+                minLength={6}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="••••••••"
+                className="pr-11"
+              />
+              <button
+                type="button"
+                aria-label={showPassword ? "Hide password" : "Show password"}
+                onClick={() => setShowPassword((value) => !value)}
+                className="absolute inset-y-0 right-3 text-muted-foreground"
+              >
+                {showPassword ? <EyeOff className="size-4" /> : <Eye className="size-4" />}
+              </button>
+            </div>
           </div>
           <Button type="submit" className="w-full" disabled={busy}>
             {busy ? (
@@ -189,7 +219,9 @@ function AuthPage() {
                   if (error) throw error;
                   toast.success("Check your inbox for a reset link.");
                 } catch (err) {
-                  toast.error("Could not send the reset email. Please check the address and try again.");
+                  toast.error(
+                    "Could not send the reset email. Please check the address and try again.",
+                  );
                 } finally {
                   setBusy(false);
                 }
@@ -199,8 +231,6 @@ function AuthPage() {
             </button>
           )}
         </form>
-
-
 
         <p className="mt-6 text-center text-sm text-muted-foreground">
           {mode === "signin" ? "New here?" : "Already have an account?"}{" "}
